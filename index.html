@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Luminaire+</title>
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap');
+
+:root{
+    --bg:#faf9f6;
+    --text:#111;
+    --muted:#817c73;
+    --line:#dedbd3;
+    --accent:#92754d;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Inter, sans-serif;
+}
+
+.molecules{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    opacity:.10;
+    pointer-events:none;
+}
+
+
+.app{
+    position:relative;
+    z-index:2;
+    max-width:430px;
+    margin:auto;
+    padding:35px 24px 70px;
+}
+
+
+.brand{
+    font-size:30px;
+    font-weight:300;
+    letter-spacing:9px;
+}
+
+
+.meta{
+    margin-top:55px;
+    font-size:11px;
+    letter-spacing:4px;
+    color:var(--muted);
+}
+
+
+.formula-name{
+
+    width:100%;
+
+    margin-top:12px;
+
+    background:transparent;
+
+    border:0;
+
+    border-bottom:1px solid var(--line);
+
+    padding:8px 0 15px;
+
+    outline:none;
+
+    color:var(--text);
+
+    font-family:"Instrument Serif",serif;
+
+    font-size:48px;
+
+}
+
+
+.formula-name::placeholder{
+    color:#bbb5aa;
+}
+
+
+.line{
+    height:1px;
+    background:var(--line);
+    margin:40px 0;
+}
+
+
+
+.note{
+
+    display:grid;
+
+    grid-template-columns:45px 1fr auto;
+
+    align-items:center;
+
+    padding:22px 0;
+
+    border-bottom:1px solid var(--line);
+
+}
+
+
+
+.number{
+
+    font-family:"IBM Plex Mono";
+
+    color:var(--muted);
+
+}
+
+
+.note-name{
+
+    font-size:16px;
+
+}
+
+
+
+.percent{
+
+    color:var(--accent);
+
+    font-family:"IBM Plex Mono";
+
+}
+
+
+
+.remove{
+
+    border:0;
+
+    background:none;
+
+    color:#999;
+
+    font-size:18px;
+
+}
+
+
+
+.total{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    padding:25px 0;
+
+    font-family:"IBM Plex Mono";
+
+}
+
+
+
+.total span:last-child{
+
+    color:var(--accent);
+
+}
+
+
+
+label{
+
+    display:block;
+
+    font-size:11px;
+
+    letter-spacing:3px;
+
+    color:var(--muted);
+
+    margin:18px 0 8px;
+
+}
+
+
+
+select,
+input:not(.formula-name){
+
+    width:100%;
+
+    padding:16px;
+
+    background:white;
+
+    border:1px solid var(--line);
+
+    color:var(--text);
+
+    font-size:15px;
+
+}
+
+
+
+button{
+
+    width:100%;
+
+    padding:17px;
+
+    margin-top:14px;
+
+    border:0;
+
+    letter-spacing:3px;
+
+    font-size:11px;
+
+}
+
+
+
+.add{
+
+    background:#111;
+
+    color:white;
+
+}
+
+
+
+.copy{
+
+    background:white;
+
+    border:1px solid #111;
+
+}
+
+
+
+.status{
+
+    text-align:center;
+
+    color:var(--muted);
+
+    font-size:12px;
+
+    margin-top:18px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<svg class="molecules" viewBox="0 0 500 900">
+
+<g fill="none" stroke="#111" stroke-width="1">
+
+<circle cx="90" cy="150" r="28"/>
+<circle cx="220" cy="100" r="20"/>
+<circle cx="350" cy="190" r="35"/>
+<circle cx="140" cy="390" r="25"/>
+<circle cx="340" cy="520" r="22"/>
+<circle cx="240" cy="700" r="40"/>
+
+<path d="
+M90 150 L220 100
+M220 100 L350 190
+M90 150 L140 390
+M140 390 L340 520
+M340 520 L240 700
+"/>
+
+</g>
+</svg>
+
+
+
+
+<div class="app">
+
+
+<div class="brand">
+LUMINAIRE+
+</div>
+
+
+<div class="meta">
+FORMULA
+</div>
+
+
+<input 
+class="formula-name"
+id="formulaName"
+placeholder="Untitled Formula"
+oninput="saveName()">
+
+
+
+<div class="line"></div>
+
+
+<div id="formula"></div>
+
+
+<div class="total">
+
+<span>TOTAL</span>
+
+<span id="total">
+0%
+</span>
+
+</div>
+
+
+
+<div class="line"></div>
+
+
+<label>
+FAMILY
+</label>
+
+<select id="family" onchange="loadNotes()">
+
+<option>
+Choose family
+</option>
+
+</select>
+
+
+
+<label>
+NOTE
+</label>
+
+<select id="note">
+
+<option>
+Choose note
+</option>
+
+</select>
+
+
+
+<label>
+PERCENTAGE
+</label>
+
+<input 
+id="amount"
+type="number"
+placeholder="0%">
+
+
+
+<button class="add" onclick="addNote()">
+ADD NOTE
+</button>
+
+
+
+<button class="copy" onclick="copyFormula()">
+COPY FORMULA
+</button>
+
+
+<div class="status" id="status"></div>
+
+
+</div>
+
+
+
+
+<script>
+
+
+const library={
+
+Citrus:[
+"Bergamot",
+"Lemon",
+"Lime",
+"Mandarin",
+"Yuzu",
+"Neroli",
+"Grapefruit"
+],
+
+Floral:[
+"Jasmine",
+"Rose",
+"Iris",
+"Violet",
+"Tuberose",
+"Magnolia",
+"Orange Blossom"
+],
+
+Woody:[
+"Iso E Super",
+"Sandalwood",
+"Cedar",
+"Vetiver",
+"Oud",
+"Patchouli",
+"Guaiac Wood"
+],
+
+Amber:[
+"Ambroxan",
+"Labdanum",
+"Benzoin",
+"Vanilla",
+"Myrrh",
+"Frankincense"
+],
+
+Musk:[
+"White Musk",
+"Ambrette",
+"Skin Musk"
+],
+
+Green:[
+"Fig Leaf",
+"Tea",
+"Moss",
+"Galbanum",
+"Basil"
+],
+
+Spice:[
+"Pink Pepper",
+"Cardamom",
+"Saffron",
+"Ginger",
+"Cinnamon"
+],
+
+Fruity:[
+"Pear",
+"Peach",
+"Apple",
+"Blackcurrant",
+"Cherry"
+],
+
+Marine:[
+"Sea Salt",
+"Ocean Air",
+"Mineral Accord"
+],
+
+Gourmand:[
+"Coffee",
+"Cacao",
+"Honey",
+"Tonka Bean",
+"Almond"
+]
+
+};
+
+
+
+let formula =
+JSON.parse(localStorage.getItem("luminaire_formula"))
+|| [];
+
+
+
+
+function setup(){
+
+let family=document.getElementById("family");
+
+
+Object.keys(library).forEach(name=>{
+
+let option=document.createElement("option");
+
+option.value=name;
+
+option.textContent=name;
+
+family.appendChild(option);
+
+});
+
+
+document.getElementById("formulaName").value =
+localStorage.getItem("luminaire_name") || "";
+
+
+render();
+
+}
+
+
+
+
+function saveName(){
+
+localStorage.setItem(
+
+"luminaire_name",
+
+document.getElementById("formulaName").value
+
+);
+
+}
+
+
+
+function loadNotes(){
+
+let family=
+document.getElementById("family").value;
+
+
+let note=
+document.getElementById("note");
+
+
+note.innerHTML="";
+
+
+if(!library[family]) return;
+
+
+library[family].forEach(name=>{
+
+let option=document.createElement("option");
+
+option.value=name;
+
+option.textContent=name;
+
+note.appendChild(option);
+
+});
+
+}
+
+
+
+function addNote(){
+
+let name=
+document.getElementById("note").value;
+
+
+let amount=
+Number(document.getElementById("amount").value);
+
+
+
+if(!name || !amount) return;
+
+
+
+formula.push({
+
+name:name,
+
+percent:amount
+
+});
+
+
+save();
+
+render();
+
+document.getElementById("amount").value="";
+
+}
+
+
+
+function removeNote(index){
+
+formula.splice(index,1);
+
+save();
+
+render();
+
+}
+
+
+
+
+function save(){
+
+localStorage.setItem(
+
+"luminaire_formula",
+
+JSON.stringify(formula)
+
+);
+
+}
+
+
+
+function render(){
+
+let box=document.getElementById("formula");
+
+box.innerHTML="";
+
+
+let total=0;
+
+
+
+formula.forEach((item,index)=>{
+
+total+=item.percent;
+
+
+box.innerHTML+=`
+
+<div class="note">
+
+<div class="number">
+${String(index+1).padStart(2,"0")}
+</div>
+
+
+<div class="note-name">
+${item.name}
+</div>
+
+
+<div>
+
+<span class="percent">
+${item.percent}%
+</span>
+
+
+<button class="remove"
+onclick="removeNote(${index})">
+×
+</button>
+
+</div>
+
+
+</div>
+
+`;
+
+});
+
+
+document.getElementById("total")
+.textContent=
+total.toFixed(2)+"%";
+
+}
+
+
+
+
+function copyFormula(){
+
+let title =
+document.getElementById("formulaName").value
+|| "Untitled Formula";
+
+
+let total =
+formula.reduce(
+(sum,item)=>sum+item.percent,
+0
+);
+
+
+let output =
+"LUMINAIRE+\n\n"
++
+title
++
+"\n\n";
+
+
+formula.forEach(item=>{
+
+output +=
+item.name
++
+" — "
++
+item.percent
++
+"%\n";
+
+});
+
+
+output +=
+"\nTOTAL: "
++
+total
++
+"%";
+
+
+
+navigator.clipboard.writeText(output);
+
+
+document.getElementById("status")
+.textContent="Copied";
+
+
+setTimeout(()=>{
+
+document.getElementById("status")
+.textContent="";
+
+},1500);
+
+
+}
+
+
+
+setup();
+
+
+</script>
+
+
+</body>
+</html>
